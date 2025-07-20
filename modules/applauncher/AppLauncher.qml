@@ -6,13 +6,14 @@ import Quickshell.Widgets
 import Quickshell.Io
 import "root:/config"
 import "root:/modules/bar/batterypopover/components"
-
 import QtQuick.Effects
+
+// import Quickshell.Hyprland
 
 PanelWindow {
     id: appLauncher
-    implicitWidth: 480
-    implicitHeight: 500
+    implicitWidth: 420
+    implicitHeight: 450
     color: "transparent"
     visible: false
 
@@ -20,7 +21,7 @@ PanelWindow {
         bottom: true
     }
     margins {
-        bottom: 5
+        bottom: 10
     }
     exclusionMode: ExclusionMode.Ignore
     focusable: true
@@ -30,19 +31,28 @@ PanelWindow {
     // Request focus for the window when it appears
     Component.onCompleted: {
         // TODO TO CHECK DONT FOREGET!!!!!!!!!!!!!!!!!!!
-        window.forceActiveFocus();
+        // appLauncher.forceActiveFocus();
         searchInput.forceActiveFocus();
         // Initialize the selection
         Qt.callLater(function () {
-            window.updateCurrentIndex();
+            appLauncher.updateCurrentIndex();
         });
+
+        // Method 1: Use Object.getOwnPropertyNames() to see all properties
+        // console.log("=== All Properties ===");
+        // var properties = Object.getOwnPropertyNames(appLauncher);
+        // for (var i = 0; i < properties.length; i++) {
+        //     console.log("Property:", properties[i]);
+        // }
     }
 
     // Global key handling for the window
     Keys.onPressed: function (event) {
         console.log("Window key pressed:", event.key, event.text);
         if (event.key === Qt.Key_Escape) {
-            appLauncher.close();
+            // appLauncher.close();
+            appLauncher.shouldShow = !appLauncher.shouldShow;
+            popupAnimationManager.hide();
             event.accepted = true;
         } else if (event.key === Qt.Key_Up) {
             navigateUp();
@@ -157,8 +167,10 @@ PanelWindow {
             var model = appListView.model;
             var currentItem = model.values[appListView.currentIndex];
             currentItem.execute();
-            appLauncher.visible = false;
+            // appLauncher.visible = false;
             searchInput.text = "";
+            appLauncher.shouldShow = !appLauncher.shouldShow;
+            popupAnimationManager.hide();
         }
     }
 
@@ -194,8 +206,11 @@ PanelWindow {
         anchors.fill: parent
         color: Theme.background
         border {
+            property real gray: (Theme.foreground.r + Theme.foreground.g + Theme.foreground.b) / 10
+            // property real white: (Theme.background.r + Theme.background.g + Theme.background.b) / 2
             width: 2
-            color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, .2)
+            // color: Qt.rgba(white, white, white, 1.0)
+            color: Qt.rgba(gray, gray, gray, 1.0)
         }
         radius: 20
         clip: true
@@ -261,6 +276,14 @@ PanelWindow {
                 }
 
                 Keys.onPressed: function (event) {
+
+                    // Method 1: Use Object.getOwnPropertyNames() to see all properties
+                    // console.log("=== All Properties ===");
+                    // var properties = Object.getOwnPropertyNames(appLauncher);
+                    // for (var i = 0; i < properties.length; i++) {
+                    //     console.log("Property:", properties[i]);
+                    // }
+
                     console.log("Search input key pressed:", event.key, event.text);
                     if (event.key === Qt.Key_Up) {
                         appLauncher.navigateUp();
@@ -276,7 +299,9 @@ PanelWindow {
                             searchInput.text = "";
                             event.accepted = true;
                         } else {
-                            appLauncher.visible = false;
+                            // appLauncher.visible = false;
+                            appLauncher.shouldShow = !appLauncher.shouldShow;
+                            popupAnimationManager.hide();
                             event.accepted = true;
                         }
                     } else if (event.key === Qt.Key_Tab) {
@@ -336,10 +361,23 @@ PanelWindow {
                     }
 
                     height: shouldShow ? 60 : 0
+                    property real childBlurAmount: shouldShow ? 0 : 2.5
+                    layer.enabled: true
+                    layer.effect: MultiEffect {
+                        blurEnabled: true
+                        blur: childBlurAmount
+                        blurMax: 32
+                    }
 
                     Behavior on height {
                         NumberAnimation {
-                            duration: 200
+                            duration: 500
+                            easing.type: Easing.OutQuad
+                        }
+                    }
+                    Behavior on childBlurAmount {
+                        NumberAnimation {
+                            duration: 500
                             easing.type: Easing.OutQuad
                         }
                     }
@@ -348,7 +386,7 @@ PanelWindow {
                     opacity: shouldShow ? 1.0 : 0.0
                     Behavior on opacity {
                         NumberAnimation {
-                            duration: 150
+                            duration: 500
                             easing.type: Easing.OutQuad
                         }
                     }
@@ -364,7 +402,7 @@ PanelWindow {
 
                     Behavior on itemScale {
                         NumberAnimation {
-                            duration: 250
+                            duration: 500
                             easing.type: Easing.OutBack
                         }
                     }
@@ -425,6 +463,7 @@ PanelWindow {
                                 id: icon
                                 source: Quickshell.iconPath(modelData?.icon, "gnome-warning")
                                 implicitSize: 40
+                                asynchronous: true
                             }
 
                             ColumnLayout {
@@ -472,10 +511,41 @@ PanelWindow {
         function toggle(): void {
             // appLauncher.visible = !appLauncher.visible;
             appLauncher.shouldShow = !appLauncher.shouldShow;
-            if (appLauncher.shouldShow){
+            if (appLauncher.shouldShow) {
                 popupAnimationManager.show();
-            } else{
+            } else {
                 popupAnimationManager.hide();
+            }
+        }
+        function focus(): void {
+            searchInput.forceActiveFocus();
+            // appLauncher.acti
+            console.log("hello");
+        }
+    }
+
+    // If Quickshell exposes Hyprland events
+    // Connections {
+    //     target: Hyprland // or whatever the Hyprland object is called in Quickshell
+    //     function onActiveWindowChanged(window) {
+    //         if (appLauncher.visible && window && window.pid !== appLauncher.pid) {
+    //             console.log("Different window became active");
+    //             appLauncher.shouldShow = false;
+    //             popupAnimationManager.hide();
+    //         }
+    //     }
+    // }
+    Connections {
+        target: Qt.application
+        function onStateChanged() {
+            console.log("App state changed:", Qt.application.state);
+            if (Qt.application.state !== Qt.ApplicationActive && appLauncher.shouldShow) {
+                // appLauncher.shouldShow = false;
+                // popupAnimationManager.hide();
+                Qt.callLater(function () {
+                    appLauncher.shouldShow = false;
+                    popupAnimationManager.hide();
+                });
             }
         }
     }

@@ -1,10 +1,8 @@
 import QtQuick
 import QtQuick.Effects
 import Quickshell
-import Quickshell.Io
 import "root:/config"
 import Quickshell.Services.UPower
-import Quickshell.Hyprland
 
 import "./components" as Components
 
@@ -109,7 +107,7 @@ PopupWindow {
                 width: 2
                 color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3)
             }
-            anchors{
+            anchors {
                 topMargin: 30
                 rightMargin: 30
             }
