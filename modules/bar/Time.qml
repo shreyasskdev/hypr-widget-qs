@@ -5,7 +5,6 @@
  */
 pragma Singleton
 
-// Add all necessary imports
 import QtQml
 import QtQuick
 import Quickshell
@@ -26,8 +25,9 @@ Singleton {
 
     // Note: The format "h AP mm" is unusual. "h:mm AP" is more standard.
     // Using "h:mm" and "AP" separately is often more flexible.
-    property string timeFull: Qt.formatDateTime(clock.date, "h:mm") // e.g., "5:37"
+    // property string timeFull: Qt.formatDateTime(clock.date, "h:mm") // e.g., "5:37"
     property string ampm: Qt.formatDateTime(clock.date, "AP")     // e.g., "PM"
-    property string hours: Qt.formatDateTime(clock.date, "h")      // e.g., "5"
+    property string hours: parseInt(Qt.formatDateTime(clock.date, "h AP"))      // e.g., "5"
     property string minutes: Qt.formatDateTime(clock.date, "mm")    // e.g., "37"
+
 }

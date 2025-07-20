@@ -1,6 +1,13 @@
 import Quickshell
+import "modules/bar"
+import "modules/notification"
+import "modules/applauncher"
+
+import "modules/volume"
 
 Scope {
     Bar {}
-    VolumeOSD {}
+    NotificationPopup {}
+    // VolumeOSD {}
+    AppLauncher {}
 }

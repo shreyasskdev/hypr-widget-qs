@@ -1,5 +1,5 @@
 import QtQuick
-import "root:/config" // Import our new Theme singleton
+import "root:/config"
 import "Time.qml"
 
 Item {
@@ -9,21 +9,19 @@ Item {
     readonly property font clockFont: Qt.font({
         family: "Electroharmonix",
         pixelSize: 20,
-        weight: 900
+        weight: 600
     })
 
     readonly property font ampmFont: Qt.font({
         family: "Electroharmonix",
         pixelSize: 15,
-        weight: 900
+        weight: 600
     })
-
-    // --- Bind all text colors directly to the theme's foreground color ---
 
     Text {
         id: hours
         text: Time.hours
-        color: Theme.foreground // Use the theme color
+        color: Theme.foreground
         font: parent.clockFont
         anchors.horizontalCenter: parent.horizontalCenter
         y: 0
@@ -33,7 +31,7 @@ Item {
     Text {
         id: colon
         text: ":"
-        color: Theme.foreground // Use the theme color
+        color: Theme.foreground
         font: parent.clockFont
         anchors.horizontalCenter: parent.horizontalCenter
         rotation: 90
@@ -44,9 +42,7 @@ Item {
     Text {
         id: minutes
         text: Time.minutes
-        // Let's use an accent color for the minutes for fun!
-        // Pywal's color4 is often a nice blue/accent.
-        color: Theme.colors[4]
+        color: Theme.foreground
         font: parent.clockFont
         anchors.horizontalCenter: parent.horizontalCenter
         y: colon.y + colon.height - 5

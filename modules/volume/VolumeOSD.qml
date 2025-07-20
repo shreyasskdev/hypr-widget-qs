@@ -49,6 +49,8 @@ Scope {
             // An empty click mask prevents the window from blocking mouse events.
             mask: Region {}
 
+            exclusionMode: ExclusionMode.Ignore
+
             Rectangle {
                 anchors.fill: parent
                 radius: height / 2

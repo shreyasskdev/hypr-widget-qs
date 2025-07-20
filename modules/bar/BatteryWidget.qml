@@ -1,11 +1,10 @@
 import QtQuick
 import QtQuick.Effects
-import Quickshell
 import Quickshell.Services.UPower
 import "root:/config"
 
 Item {
-    id: root
+    id: batterywidget
     implicitWidth: 30
     implicitHeight: 20
 
@@ -14,7 +13,7 @@ Item {
     readonly property bool isCharging: !UPower.onBattery
     readonly property int percentage: battery ? Math.round(battery.percentage * 100) : 0
 
-    visible: root.hasBattery
+    visible: batterywidget.hasBattery
 
     Item {
         id: container
@@ -26,7 +25,7 @@ Item {
             id: backgroundBox
             anchors.fill: parent
             radius: height / 2
-            color: root.isCharging ? "#bbd96a" : Theme.foreground
+            color: batterywidget.isCharging ? "#bbd96a" : Theme.foreground
 
             onColorChanged: {
                 scaleAnimation.restart();
@@ -40,9 +39,10 @@ Item {
             verticalAlignment: Text.AlignVCenter
             color: Theme.background
             font.pixelSize: 15
-            font.weight: 650
-            font.family: "Adwaita Sans"
-            text: root.percentage
+            font.weight: 700
+            font.family: "CaskaydiaCove NF"
+            // font.family: "Adwaita Sans"
+            text: batterywidget.percentage
         }
 
         layer.enabled: true
@@ -65,7 +65,7 @@ Item {
                 NumberAnimation {
                     target: container
                     property: "blurAmount"
-                    to: 2.0
+                    to: 2.5
                     duration: 250
                     easing.type: Easing.InQuad
                 }
