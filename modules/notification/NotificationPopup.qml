@@ -3,6 +3,7 @@ import QtQuick.Controls
 import QtQuick.Effects
 import Quickshell
 import Quickshell.Services.Notifications
+import Quickshell.Widgets
 
 import "root:/config"
 
@@ -140,13 +141,13 @@ PanelWindow {
                         anchors.margins: 15
                         spacing: 12
 
-                        Image {
+                        IconImage {
                             id: appIcon
                             width: 48
                             height: 48
                             anchors.verticalCenter: parent.verticalCenter
-                            source: model.appIcon ? model.appIcon : ""
-                            fillMode: Image.PreserveAspectFit
+                            source: model.appIcon ? Quickshell.iconPath(model.appIcon) : ""
+                            // fillMode: Image.PreserveAspectFit
 
                             // Add fallback for missing icons
                             Rectangle {
