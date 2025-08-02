@@ -10,7 +10,7 @@ PanelWindow {
     id: window
     implicitWidth: 400
     // Fixed height to prevent any window size animations
-    implicitHeight: 600
+    implicitHeight: Screen.height
 
     anchors {
         top: true
@@ -20,6 +20,9 @@ PanelWindow {
     // Make window completely transparent and non-interactive when empty
     color: "transparent"
     visible: notificationModel.count > 0
+    mask: Region {
+        item: interativeMask
+    }
 
     // The NotificationServer listens for notifications from the system.
     NotificationServer {
@@ -42,13 +45,25 @@ PanelWindow {
         id: notificationModel
     }
 
+    Rectangle {
+        id: interativeMask
+        color: "transparent"
+        implicitWidth: parent.width
+        implicitHeight: listView.contentHeight + 10
+    }
+
     ListView {
         id: listView
         anchors.fill: parent
-        anchors.margins: 10
+        // anchors.margins: 10
+
+        anchors {
+            topMargin: 10
+            rightMargin: 10
+        }
 
         // Keep interaction disabled to prevent conflicts
-        interactive: false
+        // interactive: false
 
         model: notificationModel
         delegate: notificationDelegate
