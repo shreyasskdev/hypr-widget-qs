@@ -72,14 +72,15 @@ PanelWindow {
         width: parent.width
         height: parent.height
         anchors {
-            topMargin: 10
+            topMargin: 20
             right: parent.right
+            top: parent.top
             rightMargin: 10
         }
 
         model: notificationModel
         delegate: notificationDelegate
-        spacing: 10
+        spacing: 25
         clip: false
         verticalLayoutDirection: ListView.TopToBottom
         interactive: false
@@ -143,16 +144,16 @@ PanelWindow {
                     id: notificationImage
                     // width: parent.width
                     // anchors.centerIn: parent
-                    width: 150
-                    height: 150
+                    width: 200
+                    height: 200
                     anchors.top: parent.top
                     anchors.right: parent.right
 
-                    source: "/home/shreyas/assets/knight.png"
+                    source: "/home/shreyas/assets/suraj.png"
                     fillMode: Image.PreserveAspectFit
 
-                    // anchors.topMargin: -50
-                    anchors.rightMargin: -150
+                    anchors.topMargin: -50
+                    anchors.rightMargin: -200
                 }
 
                 SoundEffect {
@@ -164,10 +165,26 @@ PanelWindow {
                 Rectangle {
                     id: backgroundBox
                     anchors.fill: parent
-                    color: "white"
-                    border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3)
-                    border.width: 2
-                    radius: 20
+                    color: "transparent"
+                    // border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3)
+                    // border.width: 2
+                    // radius: 20
+
+                    Image {
+                        id: backgroud
+                        width: parent.width
+                        anchors.centerIn: parent
+                        // width: 150
+                        // height: 150
+                        // anchors.top: parent.top
+                        // anchors.right: parent.right
+
+                        source: "/home/shreyas/assets/wood-board2.png"
+                        fillMode: Image.PreserveAspectFit
+
+                        // anchors.topMargin: -50
+                        // anchors.rightMargin: -150
+                    }
 
                     Row {
                         id: contentContainer
@@ -191,7 +208,7 @@ PanelWindow {
                                 Text {
                                     anchors.centerIn: parent
                                     text: model.appName ? model.appName.charAt(0).toUpperCase() : "N"
-                                    color: Theme.foreground
+                                    color: "black"
                                     font.pixelSize: 20
                                     font.weight: Font.Bold
                                 }
@@ -208,7 +225,7 @@ PanelWindow {
                                 id: summaryText
                                 width: parent.width
                                 text: model.summary || ""
-                                color: Theme.foreground
+                                color: "black"
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 2
                                 elide: Text.ElideRight
@@ -223,7 +240,8 @@ PanelWindow {
                                 id: bodyText
                                 width: parent.width
                                 text: model.body || ""
-                                color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.8)
+                                color: Qt.rgba(0, 0, 0, 0.8)
+                                // color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.8)
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 3
                                 elide: Text.ElideRight
@@ -250,16 +268,16 @@ PanelWindow {
                             target: container
                             property: "scale"
                             to: 1.0
-                            duration: 300
+                            duration: 0
                             easing.type: Easing.OutQuad
                         }
-                        NumberAnimation {
-                            target: container
-                            property: "blurAmount"
-                            to: 0.0
-                            duration: 500
-                            easing.type: Easing.OutQuad
-                        }
+                        // NumberAnimation {
+                        //     target: container
+                        //     property: "blurAmount"
+                        //     to: 0.0
+                        //     duration: 500
+                        //     easing.type: Easing.OutQuad
+                        // }
                     }
                 }
 
@@ -270,16 +288,16 @@ PanelWindow {
                             target: container
                             property: "scale"
                             to: 0.0
-                            duration: 500
+                            duration: 0
                             easing.type: Easing.InQuad
                         }
-                        NumberAnimation {
-                            target: container
-                            property: "blurAmount"
-                            to: 2.5
-                            duration: 300
-                            easing.type: Easing.InQuad
-                        }
+                        // NumberAnimation {
+                        //     target: container
+                        //     property: "blurAmount"
+                        //     to: 2.5
+                        //     duration: 300
+                        //     easing.type: Easing.InQuad
+                        // }
                         NumberAnimation {
                             target: container
                             property: "rotation"
@@ -359,7 +377,7 @@ PanelWindow {
                         fallWithDrift.start();
                         dismissSound.play();
 
-                        delay(300, function () {
+                        delay(800, function () {
                             exitAnimation.start();
                         });
                     } else {
