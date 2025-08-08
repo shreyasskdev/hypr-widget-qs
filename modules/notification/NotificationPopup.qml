@@ -22,6 +22,16 @@ PanelWindow {
     mask: Region {
         item: interactiveMask
     }
+    Timer {
+        id: timer
+    }
+
+    function delay(delayTime, cb) {
+        timer.interval = delayTime;
+        timer.repeat = false;
+        timer.triggered.connect(cb);
+        timer.start();
+    }
 
     NotificationServer {
         id: server
@@ -321,13 +331,10 @@ PanelWindow {
                     if (wasDragged) {
                         driftX = container.x - notificationItem.x;
                         fallWithDrift.start();
-                        
-                            Timer {
-            interval: 150 // ms delay before blur/scale exit
-            running: true
-            repeat: false
-            onTriggered: exitAnimation.start()
-        }
+
+                        delay(300, function () {
+                            exitAnimation.start();
+                        });
                     } else {
                         container.rotation = 0;
                     }
