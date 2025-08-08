@@ -9,70 +9,69 @@ import "root:/config"
 
 PanelWindow {
     id: window
-    implicitWidth: 400
-    // Fixed height to prevent any window size animations
-    implicitHeight: Screen.height
+    width: Screen.width
+    height: Screen.height
 
     anchors {
         top: true
         right: true
     }
 
-    // Make window completely transparent and non-interactive when empty
     color: "transparent"
     visible: notificationModel.count > 0
     mask: Region {
-        item: interativeMask
+        item: interactiveMask
     }
 
-    // The NotificationServer listens for notifications from the system.
     NotificationServer {
         id: server
         onNotification: notif => {
-            // When a notification is received, add it to our list.
             notificationModel.append({
                 summary: notif.summary,
                 body: notif.body,
                 appName: notif.appName,
                 appIcon: notif.appIcon,
-                // Use the notification's timeout, or a default of 5 seconds.
-                expireTimeout: notif.expireTimeout > 0 ? notif.expireTimeout : 5000
+                expireTimeout: notif.expireTimeout > 0 ? notif.expireTimeout : 5000,
+                id: Math.random()
             });
         }
     }
 
-    // This model will store the list of active notifications.
     ListModel {
         id: notificationModel
     }
 
     Rectangle {
-        id: interativeMask
+        id: interactiveMask
+
+        anchors {
+            right: parent.right
+            top: parent.top
+            bottom: parent.bottom
+        }
+
         color: "transparent"
-        implicitWidth: parent.width
-        implicitHeight: listView.contentHeight + 10
+        implicitWidth: 400
+        implicitHeight: Math.max(listView.contentHeight + 10, parent.height)
     }
 
     ListView {
         id: listView
-        anchors.fill: parent
-        // anchors.margins: 10
-
+        width: parent.width
+        height: parent.height
         anchors {
             topMargin: 10
+            right: parent.right
             rightMargin: 10
         }
-
-        // Keep interaction disabled to prevent conflicts
-        // interactive: false
 
         model: notificationModel
         delegate: notificationDelegate
         spacing: 10
         clip: true
         verticalLayoutDirection: ListView.TopToBottom
+        interactive: false
 
-        // Smooth transitions for adding/removing items
         add: Transition {
             NumberAnimation {
                 property: "opacity"
@@ -82,7 +81,6 @@ PanelWindow {
                 easing.type: Easing.OutQuad
             }
         }
-
         remove: Transition {
             NumberAnimation {
                 property: "opacity"
@@ -92,7 +90,6 @@ PanelWindow {
                 easing.type: Easing.InQuad
             }
         }
-
         displaced: Transition {
             NumberAnimation {
                 properties: "x,y"
@@ -100,7 +97,6 @@ PanelWindow {
                 easing.type: Easing.OutQuad
             }
         }
-
         removeDisplaced: Transition {
             NumberAnimation {
                 properties: "x,y"
@@ -110,22 +106,24 @@ PanelWindow {
         }
     }
 
-    // This component defines the UI for a single notification.
     Component {
         id: notificationDelegate
 
         Item {
             id: notificationItem
-            implicitWidth: listView.width
+            width: 400
             implicitHeight: Math.max(80, contentContainer.implicitHeight + 20)
+            anchors.right: parent.right
+            anchors.rightMargin: 10
 
             Item {
                 id: container
-                anchors.fill: parent
+                width: parent.width
+                height: parent.height
                 property real blurAmount: 2.5
+                transformOrigin: Item.Center
                 scale: 0.3
-
-                transformOrigin: Item.TopRight
+                rotation: 0 // tilt
 
                 Rectangle {
                     id: backgroundBox
@@ -147,9 +145,7 @@ PanelWindow {
                             height: 48
                             anchors.verticalCenter: parent.verticalCenter
                             source: model.appIcon ? Quickshell.iconPath(model.appIcon) : ""
-                            // fillMode: Image.PreserveAspectFit
 
-                            // Add fallback for missing icons
                             Rectangle {
                                 anchors.fill: parent
                                 color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.2)
@@ -180,7 +176,6 @@ PanelWindow {
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 2
                                 elide: Text.ElideRight
-
                                 font {
                                     pixelSize: 15
                                     weight: Font.Bold
@@ -196,7 +191,6 @@ PanelWindow {
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 3
                                 elide: Text.ElideRight
-
                                 font {
                                     pixelSize: 13
                                     family: "CaskaydiaCove NF"
@@ -213,7 +207,6 @@ PanelWindow {
                     blurMax: 32
                 }
 
-                // Entrance animation
                 SequentialAnimation {
                     id: scaleAnimation
                     ParallelAnimation {
@@ -234,7 +227,6 @@ PanelWindow {
                     }
                 }
 
-                // Exit animation
                 SequentialAnimation {
                     id: exitAnimation
                     ParallelAnimation {
@@ -252,32 +244,102 @@ PanelWindow {
                             duration: 300
                             easing.type: Easing.InQuad
                         }
-                    }
-                    onFinished: {
-                        if (model.index >= 0 && model.index < notificationModel.count) {
-                            notificationModel.remove(model.index);
+                        NumberAnimation {
+                            target: container
+                            property: "rotation"
+                            to: 0
+                            duration: 300
+                            easing.type: Easing.OutQuad
                         }
                     }
+                    onFinished: {
+                        if (model.index >= 0 && model.index < notificationModel.count)
+                            notificationModel.remove(model.index);
+                    }
+                }
+
+                ParallelAnimation {
+                    id: fallWithDrift
+                    NumberAnimation {
+                        target: container
+                        property: "y"
+                        to: window.height + container.height
+                        duration: 600
+                        easing.type: Easing.InQuad
+                    }
+                    NumberAnimation {
+                        target: container
+                        property: "x"
+                        to: container.x + mouseArea.driftX / 2
+                        duration: 600
+                        easing.type: Easing.OutQuad
+                    }
+                    NumberAnimation {
+                        target: container
+                        property: "rotation"
+                        to: container.rotation * 2 // keep tilt while falling
+                        duration: 600
+                        easing.type: Easing.OutQuad
+                    }
+                    onFinished: exitAnimation.start
                 }
             }
 
             Timer {
+                id: expireTimer
                 interval: model.expireTimeout
                 running: true
-                onTriggered: {
-                    exitAnimation.start();
-                }
+                onTriggered: exitAnimation.start
             }
+
             MouseArea {
+                id: mouseArea
                 anchors.fill: parent
-                onClicked: {
-                    exitAnimation.start();
+                property point pressPoint
+                property bool wasDragged: false
+                property real driftX: 0
+
+                onPressed: mouse => {
+                    pressPoint = Qt.point(mouse.x, mouse.y);
+                    wasDragged = false;
                 }
-                cursorShape: Qt.PointingHandCursor
+
+                onPositionChanged: mouse => {
+                    if (Math.abs(mouse.y - pressPoint.y) > 5 || Math.abs(mouse.x - pressPoint.x) > 5) {
+                        wasDragged = true;
+                        container.x += mouse.x - pressPoint.x;
+                        container.y += mouse.y - pressPoint.y;
+
+                        // Rotate based on horizontal drift
+                        container.rotation = (container.x - notificationItem.x) * 0.1 + 180;
+
+                        pressPoint = Qt.point(mouse.x, mouse.y);
+                    }
+                }
+
+                onReleased: mouse => {
+                    if (wasDragged) {
+                        driftX = container.x - notificationItem.x;
+                        fallWithDrift.start();
+                        
+                            Timer {
+            interval: 150 // ms delay before blur/scale exit
+            running: true
+            repeat: false
+            onTriggered: exitAnimation.start()
+        }
+                    } else {
+                        container.rotation = 0;
+                    }
+                }
+
+                onClicked: mouse => {
+                    if (!wasDragged)
+                        exitAnimation.start();
+                }
             }
-            Component.onCompleted: {
-                scaleAnimation.restart();
-            }
+
+            Component.onCompleted: scaleAnimation.restart()
         }
     }
 }
