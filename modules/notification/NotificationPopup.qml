@@ -28,6 +28,21 @@ PanelWindow {
         id: timer
     }
 
+    property var notificationAssets: [
+        {
+            image: "root:/assets/suraj.png",
+            sound: "root:/assets/wilhelm-scream.wav"
+        },
+        {
+            image: "root:/assets/damu.png",
+            sound: "root:/assets/jagathi.wav"
+        },
+        {
+            image: "root:/assets/spidy.png",
+            sound: "root:/assets/kollunne.wav"
+        }
+    ]
+
     function delay(delayTime, cb) {
         timer.interval = delayTime;
         timer.repeat = false;
@@ -129,6 +144,8 @@ PanelWindow {
             anchors.right: parent.right
             anchors.rightMargin: 10
 
+            property var selectedAsset: notificationAssets[Math.floor(Math.random() * notificationAssets.length)]
+
             Item {
                 id: container
                 width: parent.width
@@ -136,20 +153,16 @@ PanelWindow {
                 property real blurAmount: 2.5
                 transformOrigin: Item.Center
                 scale: 0.3
-                rotation: 0 // tilt
-
-                // clip: false
+                rotation: 0
 
                 Image {
                     id: notificationImage
-                    // width: parent.width
-                    // anchors.centerIn: parent
                     width: 200
                     height: 200
                     anchors.top: parent.top
                     anchors.right: parent.right
 
-                    source: "/home/shreyas/assets/suraj.png"
+                    source: selectedAsset.image
                     fillMode: Image.PreserveAspectFit
 
                     anchors.topMargin: -50
@@ -158,32 +171,21 @@ PanelWindow {
 
                 SoundEffect {
                     id: dismissSound
-                    // IMPORTANT: Replace this with the path to your sound file
-                    source: "/home/shreyas/assets/wilhelm-scream.wav"
+                    source: selectedAsset.sound
                 }
 
                 Rectangle {
                     id: backgroundBox
                     anchors.fill: parent
                     color: "transparent"
-                    // border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3)
-                    // border.width: 2
-                    // radius: 20
 
                     Image {
                         id: backgroud
                         width: parent.width
                         anchors.centerIn: parent
-                        // width: 150
-                        // height: 150
-                        // anchors.top: parent.top
-                        // anchors.right: parent.right
 
                         source: "/home/shreyas/assets/wood-board2.png"
                         fillMode: Image.PreserveAspectFit
-
-                        // anchors.topMargin: -50
-                        // anchors.rightMargin: -150
                     }
 
                     Row {
@@ -241,7 +243,6 @@ PanelWindow {
                                 width: parent.width
                                 text: model.body || ""
                                 color: Qt.rgba(0, 0, 0, 0.8)
-                                // color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.8)
                                 wrapMode: Text.WordWrap
                                 maximumLineCount: 3
                                 elide: Text.ElideRight
@@ -254,13 +255,6 @@ PanelWindow {
                     }
                 }
 
-                // layer.enabled: true
-                // layer.effect: MultiEffect {
-                //     blurEnabled: true
-                //     blur: container.blurAmount
-                //     blurMax: 32
-                // }
-
                 SequentialAnimation {
                     id: scaleAnimation
                     ParallelAnimation {
@@ -271,13 +265,6 @@ PanelWindow {
                             duration: 0
                             easing.type: Easing.OutQuad
                         }
-                        // NumberAnimation {
-                        //     target: container
-                        //     property: "blurAmount"
-                        //     to: 0.0
-                        //     duration: 500
-                        //     easing.type: Easing.OutQuad
-                        // }
                     }
                 }
 
@@ -291,13 +278,6 @@ PanelWindow {
                             duration: 0
                             easing.type: Easing.InQuad
                         }
-                        // NumberAnimation {
-                        //     target: container
-                        //     property: "blurAmount"
-                        //     to: 2.5
-                        //     duration: 300
-                        //     easing.type: Easing.InQuad
-                        // }
                         NumberAnimation {
                             target: container
                             property: "rotation"
@@ -331,7 +311,7 @@ PanelWindow {
                     NumberAnimation {
                         target: container
                         property: "rotation"
-                        to: container.rotation * 2 // keep tilt while falling
+                        to: container.rotation * 2
                         duration: 600
                         easing.type: Easing.OutQuad
                     }
@@ -357,34 +337,27 @@ PanelWindow {
                     pressPoint = Qt.point(mouse.x, mouse.y);
                     wasDragged = false;
                 }
-
                 onPositionChanged: mouse => {
                     if (Math.abs(mouse.y - pressPoint.y) > 5 || Math.abs(mouse.x - pressPoint.x) > 5) {
                         wasDragged = true;
                         container.x += mouse.x - pressPoint.x;
                         container.y += mouse.y - pressPoint.y;
-
-                        // Rotate based on horizontal drift
                         container.rotation = (container.x - notificationItem.x) * 0.1 + 180;
-
                         pressPoint = Qt.point(mouse.x, mouse.y);
                     }
                 }
-
                 onReleased: mouse => {
                     if (wasDragged) {
                         driftX = container.x - notificationItem.x;
                         fallWithDrift.start();
                         dismissSound.play();
-
-                        delay(800, function () {
+                        delay(3000, function () {
                             exitAnimation.start();
                         });
                     } else {
                         container.rotation = 0;
                     }
                 }
-
                 onClicked: mouse => {
                     if (!wasDragged)
                         exitAnimation.start();
