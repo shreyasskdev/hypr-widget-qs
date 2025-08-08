@@ -184,7 +184,7 @@ PanelWindow {
                         width: parent.width
                         anchors.centerIn: parent
 
-                        source: "/home/shreyas/assets/wood-board2.png"
+                        source: "root:/assets/wood-board2.png"
                         fillMode: Image.PreserveAspectFit
                     }
 
