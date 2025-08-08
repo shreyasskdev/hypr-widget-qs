@@ -5,6 +5,8 @@ import Quickshell
 import Quickshell.Services.Notifications
 import Quickshell.Widgets
 
+import QtMultimedia
+
 import "root:/config"
 
 PanelWindow {
@@ -78,7 +80,7 @@ PanelWindow {
         model: notificationModel
         delegate: notificationDelegate
         spacing: 10
-        clip: true
+        clip: false
         verticalLayoutDirection: ListView.TopToBottom
         interactive: false
 
@@ -135,10 +137,34 @@ PanelWindow {
                 scale: 0.3
                 rotation: 0 // tilt
 
+                // clip: false
+
+                Image {
+                    id: notificationImage
+                    // width: parent.width
+                    // anchors.centerIn: parent
+                    width: 150
+                    height: 150
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+
+                    source: "/home/shreyas/assets/knight.png"
+                    fillMode: Image.PreserveAspectFit
+
+                    // anchors.topMargin: -50
+                    anchors.rightMargin: -150
+                }
+
+                SoundEffect {
+                    id: dismissSound
+                    // IMPORTANT: Replace this with the path to your sound file
+                    source: "/home/shreyas/assets/wilhelm-scream.wav"
+                }
+
                 Rectangle {
                     id: backgroundBox
                     anchors.fill: parent
-                    color: Theme.background
+                    color: "white"
                     border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.3)
                     border.width: 2
                     radius: 20
@@ -210,12 +236,12 @@ PanelWindow {
                     }
                 }
 
-                layer.enabled: true
-                layer.effect: MultiEffect {
-                    blurEnabled: true
-                    blur: container.blurAmount
-                    blurMax: 32
-                }
+                // layer.enabled: true
+                // layer.effect: MultiEffect {
+                //     blurEnabled: true
+                //     blur: container.blurAmount
+                //     blurMax: 32
+                // }
 
                 SequentialAnimation {
                     id: scaleAnimation
@@ -331,6 +357,7 @@ PanelWindow {
                     if (wasDragged) {
                         driftX = container.x - notificationItem.x;
                         fallWithDrift.start();
+                        dismissSound.play();
 
                         delay(300, function () {
                             exitAnimation.start();
